@@ -14,6 +14,8 @@ class URLListActor extends Actor{
         println("Starting URLListActor...")
         unvisited = Map[String,Boolean]()
         visited = Map[String,Boolean]()
+        unvisited += "http://www.mec.ca/AST/ShopMEC/Travel/HostellingGames/PRD~5010-891/hostelling-international-canada-membership-package.jsp" -> false
+        unvisited += "http://www.mec.ca/AST/ShopMEC/Cycling/Bikes/Urban/PRD~5020-468/mec-hold-steady-bicycle-unisex.jsp" -> false
     }
     
     def receive = {
@@ -24,11 +26,15 @@ class URLListActor extends Actor{
     				unvisited += k -> v
     			}
     		}
+            println("Processed URLs: "+visited.size+" , Unvisited URLs: "+unvisited.size)
 
 		case e:URLGetRequest =>
-			val (u,v) = unvisited.head
-			unvisited = unvisited - u
-			sender ! new URLGetResponse(u)
+            if(unvisited.size > 0){
+    			val (u,v) = unvisited.head
+    			unvisited = unvisited - u
+                visited += u -> false
+    			sender ! new URLGetResponse(u)
+            }
 
         case e => println("Unexpected Message: "+e)
     }

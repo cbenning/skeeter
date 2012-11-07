@@ -17,7 +17,7 @@ object Scraper extends App {
 
    	while( i < max){
    		//scrapers = scrapers + 
-	    system.actorOf(Props[ScraperActor], name = "Scraper-"+i.toString)
+	    system.actorOf(Props(new ScraperActor(urlListActor)), name = "Scraper-"+i.toString)
 	    i += 1
 	}
 
