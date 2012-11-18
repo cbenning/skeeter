@@ -16,6 +16,7 @@ class URLListActor extends Actor{
         visited = Map[String,Boolean]()
         unvisited += "http://www.mec.ca/AST/ShopMEC/Travel/HostellingGames/PRD~5010-891/hostelling-international-canada-membership-package.jsp" -> false
         unvisited += "http://www.mec.ca/AST/ShopMEC/Cycling/Bikes/Urban/PRD~5020-468/mec-hold-steady-bicycle-unisex.jsp" -> false
+        unvisited += "http://www.mec.ca/AST/ShopMEC/MensClothing/BaseLayerUnderwear/LightweightSilk/PRD~5016-220/mec-merino-lightweight-2-long-johns-mens.jsp" -> false
     }
     
     def receive = {
@@ -26,7 +27,7 @@ class URLListActor extends Actor{
     				unvisited += k -> v
     			}
     		}
-            println("Processed URLs: "+visited.size+" , Unvisited URLs: "+unvisited.size)
+            println("Processed URLs: "+visited.size+"/"+unvisited.size)
 
 		case e:URLGetRequest =>
             if(unvisited.size > 0){

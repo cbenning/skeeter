@@ -11,18 +11,15 @@ import scala.util.matching.Regex._
 import akka.actor.ReceiveTimeout
 import akka.util.duration._
 
-// import org.ccil.cowan.tagsoup.jaxp.SAXFactoryImpl
-// import scala.xml.{Elem, XML}
-// import scala.xml.factory.XMLLoader
-
 class ScraperActor extends Actor{
 
-	//val parserFactory = new SAXFactoryImpl
     var urllist:ActorRef = null
+    var productlist:ActorRef = null
 
-    def this(urllist:ActorRef) = {
+    def this(urllist:ActorRef,productlist:ActorRef) = {
         this()
         this.urllist = urllist
+        this.productlist = productlist
     }
 
     override def preStart = {
@@ -37,7 +34,6 @@ class ScraperActor extends Actor{
             val regex = new Regex("(http://www.mec.ca|/AST)")
             regex findFirstIn url match{
                 case Some(regex) =>
-                    println("0")
                     processURL(url)
                 case None => 0
             }
@@ -54,6 +50,8 @@ class ScraperActor extends Actor{
         try{
             val doc = Jsoup.connect(url).timeout(0).get
 
+            //println("Processing: "+url)
+
             //Scrape links
             val links = doc.select("a")
             var tolook = Map[String,Boolean]()
@@ -67,16 +65,24 @@ class ScraperActor extends Actor{
 
             //Search for valid urls
             for ( link <- links) {
+                val _url = link.attr("href")
+                val regex_http_mec = new Regex("http://www.mec.ca/")
+                regex_http_mec findFirstIn _url match{
 
-                val regex_http = new Regex("http://")
-                regex_http findFirstIn url match{
-
-                    case Some(regex_http) =>  
-                        tolook += url -> false
+                    case Some(regex_http_mec) =>  
+                        tolook += _url -> false
 
                     case None =>
-                        val new_url = "http://www.mec.ca"+link.attr("href")
-                        tolook += new_url -> false
+                        val regex_mec = new Regex("/AST/")
+                        regex_mec findFirstIn _url match{
+
+                            case Some(regex_mec) =>  
+                                val new_url = "http://www.mec.ca"+_url
+                                tolook += new_url -> false
+
+                            case None => 0
+                        }
+
 
                 }
             }
@@ -94,7 +100,8 @@ class ScraperActor extends Actor{
                 val price = root.select("div#idPrdPrice span.prPr").text
                 val reviewLink = root.select("div.merch-rating a:eq(1)").attr("href")
                 val image = root.select("div#skuColours a.cloud-zoom-gallery").attr("href")
-                println("Found one!: "+name)
+                println(" ---> Found one!: "+name)
+                this.productlist ! new NewProduct(madeIn,name,price,reviewLink,image,url)
             }
             // else {
             //     if(madeIn != ""){
@@ -106,7 +113,7 @@ class ScraperActor extends Actor{
             // }
         }
         catch{
-            case e => println(e)
+            case e => 0
         }
     }
 
