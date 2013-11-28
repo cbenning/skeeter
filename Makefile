@@ -1,7 +1,7 @@
 
 OPTS:=-Dmaven.test.skip=true
 
-broker:
+skeeter:
 	mvn scala:compile $(OPTS)
 	mvn -q package $(OPTS)
 

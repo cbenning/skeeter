@@ -7,11 +7,11 @@ import akka.event.Logging
 
 object Scraper extends App {
 
-	var scrapers = List[ActorRef]()
+    var scrapers = List[ActorRef]()
 
     val system = ActorSystem("ScraperSystem")
-    val urlListActor = system.actorOf(Props[URLListActor], name = "URLList")
-    val productListActor = system.actorOf(Props[ProductListActor], name = "ProductList")
+    val urlListActor = system.actorOf(Props[URLListActor], "URLList")
+    val productListActor = system.actorOf(Props[ProductListActor], "ProductList")
     
 
     val max = 100
@@ -19,7 +19,7 @@ object Scraper extends App {
 
    	while( i < max){
    		//scrapers = scrapers + 
-	    system.actorOf(Props(new ScraperActor(urlListActor,productListActor)), name = "Scraper-"+i.toString)
+	    system.actorOf(Props(new ScraperActor(urlListActor,productListActor)), "Scraper-"+i.toString)
 	    i += 1
 	}
 

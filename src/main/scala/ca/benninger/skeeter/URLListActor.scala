@@ -14,9 +14,10 @@ class URLListActor extends Actor{
         println("Starting URLListActor...")
         unvisited = Map[String,Boolean]()
         visited = Map[String,Boolean]()
-        unvisited += "http://www.mec.ca/AST/ShopMEC/Travel/HostellingGames/PRD~5010-891/hostelling-international-canada-membership-package.jsp" -> false
-        unvisited += "http://www.mec.ca/AST/ShopMEC/Cycling/Bikes/Urban/PRD~5020-468/mec-hold-steady-bicycle-unisex.jsp" -> false
-        unvisited += "http://www.mec.ca/AST/ShopMEC/MensClothing/BaseLayerUnderwear/LightweightSilk/PRD~5016-220/mec-merino-lightweight-2-long-johns-mens.jsp" -> false
+        unvisited += "http://www.mec.ca/shop/made-in-canada/20143/" -> false
+        //unvisited += "http://www.mec.ca/AST/ShopMEC/Travel/HostellingGames/PRD~5010-891/hostelling-international-canada-membership-package.jsp" -> false
+        //unvisited += "http://www.mec.ca/AST/ShopMEC/Cycling/Bikes/Urban/PRD~5020-468/mec-hold-steady-bicycle-unisex.jsp" -> false
+        //unvisited += "http://www.mec.ca/AST/ShopMEC/MensClothing/BaseLayerUnderwear/LightweightSilk/PRD~5016-220/mec-merino-lightweight-2-long-johns-mens.jsp" -> false
     }
     
     def receive = {

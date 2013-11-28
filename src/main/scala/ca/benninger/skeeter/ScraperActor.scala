@@ -11,16 +11,7 @@ import scala.util.matching.Regex._
 import akka.actor.ReceiveTimeout
 import akka.util.duration._
 
-class ScraperActor extends Actor{
-
-    var urllist:ActorRef = null
-    var productlist:ActorRef = null
-
-    def this(urllist:ActorRef,productlist:ActorRef) = {
-        this()
-        this.urllist = urllist
-        this.productlist = productlist
-    }
+class ScraperActor(urllist:ActorRef,productlist:ActorRef) extends Actor{
 
     override def preStart = {
         println("Starting ScraperActor..")
@@ -29,12 +20,11 @@ class ScraperActor extends Actor{
     }
     
     def receive = {
-    	
         case URLGetResponse(url) =>
             val regex = new Regex("(http://www.mec.ca|/AST)")
             regex findFirstIn url match{
                 case Some(regex) =>
-                    processURL(url)
+                    processURL(url) 
                 case None => 0
             }
             this.urllist ! new URLGetRequest
@@ -46,7 +36,6 @@ class ScraperActor extends Actor{
     }
 
     def processURL(url:String) = {
-
         try{
             val doc = Jsoup.connect(url).timeout(0).get
 
@@ -73,7 +62,7 @@ class ScraperActor extends Actor{
                         tolook += _url -> false
 
                     case None =>
-                        val regex_mec = new Regex("/AST/")
+                        val regex_mec = new Regex("/product/")
                         regex_mec findFirstIn _url match{
 
                             case Some(regex_mec) =>  
@@ -93,15 +82,17 @@ class ScraperActor extends Actor{
             }
 
             //Scrape data
-            val madeIn = doc.select("span.prDs").text
+            val madeIn = doc.select("span.prDs.CAN").text
+            //val madeIn = doc.select("span.prDs").text
             if(madeIn.contains("Made in Canada")) {
                 val root = doc.select("div#shopbox")
                 val name = root.select("h1").text
                 val price = root.select("div#idPrdPrice span.prPr").text
                 val reviewLink = root.select("div.merch-rating a:eq(1)").attr("href")
                 val image = root.select("div#skuColours a.cloud-zoom-gallery").attr("href")
+                val desc = root.select("div.longdesc").text
                 println(" ---> Found one!: "+name)
-                this.productlist ! new NewProduct(madeIn,name,price,reviewLink,image,url)
+                this.productlist ! new NewProduct(madeIn,name,price,reviewLink,image,url,desc)
             }
             // else {
             //     if(madeIn != ""){
@@ -113,7 +104,7 @@ class ScraperActor extends Actor{
             // }
         }
         catch{
-            case e => 0
+            case e:Throwable => 0
         }
     }
 
